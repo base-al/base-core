@@ -1,0 +1,78 @@
+definitions:
+  users.SignupUserRequest:
+    properties:
+      confirmPassword:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  users.SignupUserResponse:
+    properties:
+      id:
+        type: integer
+      status:
+        type: string
+    type: object
+  users.StatusResponse:
+    properties:
+      status:
+        type: boolean
+    type: object
+info:
+  contact: {}
+paths:
+  /signup:
+    post:
+      consumes:
+      - application/json
+      description: Validates email, username, first name, last name, password checks
+        if email exists, if not creates new user and sends email with verification
+        link.
+      parameters:
+      - description: SignupUserRequest
+        in: body
+        name: SignupUserRequest
+        required: true
+        schema:
+          $ref: '#/definitions/users.SignupUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users.SignupUserResponse'
+      summary: Signup
+      tags:
+      - Users
+  /signup/verify/{token}:
+    get:
+      consumes:
+      - application/json
+      description: Validates token in param, if token parses valid then user will
+        be verified and be updated in DB.
+      parameters:
+      - description: Token
+        in: path
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users.StatusResponse'
+      summary: SignupVerify
+      tags:
+      - Users
+swagger: "2.0"
