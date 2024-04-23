@@ -1,15 +1,12 @@
 package oauth
 
 import (
-	"base/helper"
 	"base/s3"
 	"context"
 	"fmt"
 	"strconv"
 	"time"
 
-	userprofilesvc "base/app/users/userprofiles"
-	usersettingsvc "base/app/users/usersettings"
 	userService "base/core/users"
 
 	"github.com/dgrijalva/jwt-go"
@@ -128,61 +125,12 @@ func (s oAuthAccountApi) GoogleSignUpCallback(req *OAuthCallbackRequest) (res *C
 	}
 	s.db.Model(User{Email: userinfo.Email}).First(&user)
 
-	// Save new profile record
-	var userProfile userprofilesvc.UserProfile
-	userProfile.UserID = int(user.ID)
-	userProfile.AvatarImgKey = userinfo.Picture
-	result = s.db.Omit("UpdatedAt").Create(&userProfile)
-	if result.Error != nil {
-		s.logger.Errorf("func: GoogleSignUpCallback, operation: s.db.Omit('UpdatedAt').Create(&userProfile), err: %s", result.Error.Error())
-		return nil, result.Error
-	}
-
 	// Create directory in users.env bucket for this user
 	usrsBckName := s.s3c.UsersBucketName()
 	err = s.s3c.NewBucketFolder(usrsBckName, fmt.Sprint(user.ID))
 	if err != nil {
 		s.logger.Errorf("func: GoogleSignUpCallback, operation: s.s3c.NewBucketFolder, err: %s", err.Error())
 		return nil, err
-	}
-
-	// Save default user settings timezone and notifications
-	defaultUserSettings := []usersettingsvc.UserSetting{
-		{
-			UserID:    int(user.ID),
-			Name:      "Time zone",
-			Type:      helper.UserSettingTimezoneType,
-			ValueText: "",
-		},
-		{
-			UserID:    int(user.ID),
-			Name:      "Enable Calendar Notifications",
-			Type:      helper.UserSettingCalendarNotification,
-			ValueBool: true,
-		},
-		{
-			UserID:    int(user.ID),
-			Name:      "Enable Message Notifications",
-			Type:      helper.UserSettingMessageNotification,
-			ValueBool: true,
-		},
-		{
-			UserID:    int(user.ID),
-			Name:      "Enable Activities Notifications",
-			Type:      helper.UserSettingActivityNotification,
-			ValueBool: true,
-		},
-		{
-			UserID:    int(user.ID),
-			Name:      "Enable Email Notifications",
-			Type:      helper.UserSettingEmailNotification,
-			ValueBool: true,
-		},
-	}
-
-	result = s.db.Omit("updated_at").Create(&defaultUserSettings)
-	if result.Error != nil {
-		return nil, result.Error
 	}
 
 	oAuthAcc.UserID = int(user.ID)
