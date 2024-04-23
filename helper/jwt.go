@@ -18,7 +18,7 @@ func Encode(userData interface{}, sk string) (string, error) {
 		userData,
 		jwt.StandardClaims{
 			ExpiresAt: expireToken,
-			Issuer:    "pioniir.user",
+			Issuer:    "base.user",
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

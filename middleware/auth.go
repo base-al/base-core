@@ -38,6 +38,7 @@ func CtxUserID(c *fiber.Ctx) (id int, err error) {
 	return int(fid), nil
 }
 
+
 func jwtError(c *fiber.Ctx, err error) error {
 	if err.Error() == "Missing or malformed JWT" {
 		return c.Status(fiber.StatusUnauthorized).JSON(HTTPError{Message: ErrUnauthorized.Error()})

@@ -1,223 +1,171 @@
 package users
 
 import (
-	"base-core/helper"
 	"fmt"
-	"os"
 	"strings"
-	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	// activitysvc "base/app/activities"
+	// companysvc "base/app/companies"
+
+	"base/s3"
+
+	"base/helper"
+
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/mattevans/postmark-go"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
+const (
+	UserStatusActive   = string("active")
+	UserStatusInactive = string("inactive")
+	UserStatusInvited  = string("invited")
+	UserStatusPending  = string("pending")
+	UserStatusReject   = string("rejected")
+
+	modeChangePassword = string("change")
+	modeSetPassword    = string("set")
+)
+
 type userAPI struct {
 	db             *gorm.DB
+	s3c            *s3.S3Client
 	secretKey      string
 	postmarkClient *postmark.Client
+	uiAppUrl       string
 	logger         log.AllLogger
+	sendFromEmail  string
 }
 
 type UserAPI interface {
-	Signup(req *SignupUserRequest) (res *SignupUserResponse, err error)
-	SignupVerify(req *SignupUserVerifyRequest) (res *StatusResponse, err error)
+	PasswordUpdate(req *PasswordUpdateRequest) (res *StatusResponse, err error)
+	EmailUpdate(req *EmailUpdateRequest) (res *StatusResponse, err error)
 }
 
-func NewUserAPI(db *gorm.DB, sk string, pmc *postmark.Client, logger log.AllLogger) UserAPI {
-	return &userAPI{
+func NewUserAPI(db *gorm.DB, s3c *s3.S3Client, sk string, pmc *postmark.Client, uiAppUrl string, logger log.AllLogger, sendFromEmail string) UserAPI {
+	return userAPI{
 		db:             db,
+		s3c:            s3c,
 		secretKey:      sk,
 		postmarkClient: pmc,
+		uiAppUrl:       uiAppUrl,
 		logger:         logger,
+		sendFromEmail:  sendFromEmail,
 	}
 }
 
-// @Summary      	Signup
-// @Description	Validates email, username, first name, last name, password checks if email exists, if not creates new user and sends email with verification link.
+// @Summary      	PasswordUpdate
+// @Description		Validates user id, mode, new password, confirm new password and(or) current password then will set or update password of the user.
 // @Tags			Users
-// @Accept			json
 // @Produce			json
-// @Param			SignupUserRequest	body		SignupUserRequest	true	"SignupUserRequest"
-// @Success			200					{object}	SignupUserResponse
-// @Router			/signup	[POST]
-func (s userAPI) Signup(req *SignupUserRequest) (res *SignupUserResponse, err error) {
-	req.Email = strings.TrimSpace(strings.ToLower(req.Email))
-	req.Username = strings.TrimSpace(req.Username)
-	req.FirstName = strings.TrimSpace(req.FirstName)
-	req.LastName = strings.TrimSpace(req.LastName)
-	req.Password = strings.TrimSpace(req.Password)
-	req.ConfirmPassword = strings.TrimSpace(req.ConfirmPassword)
-
-	if req.Email == "" {
-		return nil, fmt.Errorf("Email is required")
+// @Param			Authorization						header		string			true	"Authorization Key(e.g Bearer key)"
+// @Param			PasswordUpdateRequest				body		PasswordUpdateRequest		true	"PasswordUpdateRequest"
+// @Success			200									{object}	StatusResponse
+// @Router			/users/update-password				[PUT]
+func (s userAPI) PasswordUpdate(req *PasswordUpdateRequest) (res *StatusResponse, err error) {
+	if req.UserID == 0 {
+		return nil, fmt.Errorf("user id is empty")
 	}
-	if !helper.ValidEmail(req.Email) {
-		return nil, fmt.Errorf("Email not valid")
-	}
-	if req.Username == "" {
-		return nil, fmt.Errorf("Username is required")
-	}
-	if req.FirstName == "" {
-		return nil, fmt.Errorf("FirstName is required")
-	}
-	if req.LastName == "" {
-		return nil, fmt.Errorf("LastName is required")
-	}
-	if req.Password == "" {
-		return nil, fmt.Errorf("Password is required")
-	}
-	if req.ConfirmPassword == "" {
-		return nil, fmt.Errorf("ConfirmPassword is required")
-	}
-	if req.Password != req.ConfirmPassword {
-		return nil, fmt.Errorf("Password are ConfirmPassword must match")
+	req.NewPassword = strings.TrimSpace(req.NewPassword)
+	req.ConfirmNewPassword = strings.TrimSpace(req.ConfirmNewPassword)
+	req.Mode = strings.ToLower(req.Mode)
+	if req.Mode != modeChangePassword && req.Mode != modeSetPassword {
+		return nil, fmt.Errorf("mode is invalid")
 	}
 
-	token := jwt.New(jwt.SigningMethodHS256)
-	claims := token.Claims.(jwt.MapClaims)
-	claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
-	claims["email"] = req.Email
-	t, err := token.SignedString([]byte(s.secretKey))
-	if err != nil {
-		return nil, err
+	if len(req.NewPassword) < 8 {
+		return nil, fmt.Errorf("new password min length is 8 chars")
+	}
+	if len(req.ConfirmNewPassword) < 8 {
+		return nil, fmt.Errorf("new confirm password min length is 8 chars")
+	}
+	if req.NewPassword != req.ConfirmNewPassword {
+		return nil, fmt.Errorf("new password and new confirm password doesn't match")
 	}
 
 	var user User
-	_ = s.db.Where("email = ?", req.Email).First(&user)
-	if user.ID > 0 {
-		if !user.VerifiedEmail {
-			verifyLink := os.Getenv("APP_URL") + "/verify-signup/" + t
-			// Send email to req email
-			emailMsg := &postmark.Email{
-				From:    "info@base.al",
-				To:      req.Email,
-				Subject: "Base -  Verify your registration",
-				HTMLBody: fmt.Sprintf(`Hello from Base!<br/><br/>
-					You have successfully signed up as new user in Base platform!<br/>
-					Please continue by verifing your registration by linking the link below.<br/><br/>
+	result := s.db.Where("id = ?", req.UserID).First(&user)
+	if result.Error != nil {
+		return nil, fmt.Errorf("finding user error: %s", result.Error.Error())
+	}
 
-					<a href='%s'>Verify you email</a><br/><br/>
-
-					Thank you, <br/>
-					CommuniHub Team
-				`, verifyLink),
-			}
-
-			_, _, err = s.postmarkClient.Email.Send(emailMsg)
-			if err != nil {
-				return nil, err
-			}
-
-			return &SignupUserResponse{
-				ID:     user.ID,
-				Status: "pending",
-			}, nil
+	// Handle password set
+	if req.Mode == modeSetPassword {
+		if user.Password != "" {
+			return nil, fmt.Errorf("password already has been set")
 		}
-		return nil, fmt.Errorf("Email is already used")
+
 	}
 
-	_ = s.db.Where("username = ?", req.Username).First(&user)
-	if user.ID > 0 {
-		return nil, fmt.Errorf("Username is already used")
+	if req.Mode == modeChangePassword {
+		req.CurrentPassword = strings.TrimSpace(req.CurrentPassword)
+		if req.ConfirmNewPassword == "" {
+			return nil, fmt.Errorf("current password is required")
+		}
+		// Compare passwords
+		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.CurrentPassword)); err != nil {
+			return nil, helper.ErrNotFound
+		}
 	}
 
-	fmt.Println("token", t)
-
-	// Save new profile and user record
-
-	user.Email = req.Email
-	user.Username = req.Username
-	user.FirstName = req.FirstName
-	user.LastName = req.LastName
-	user.VerifiedEmail = false
-	user.Active = false
-
-	pwh, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	pwh, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
 	if err != nil {
+		s.logger.Errorf("func: Signup, operation: bcrypt.GenerateFromPassword, err: %s", err.Error())
 		return nil, err
 	}
 	pwhs := string(pwh)
 	user.Password = pwhs
 
-	result := s.db.Omit("UpdatedAt").Create(&user)
+	result = s.db.Save(&user)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	s.db.Model(User{Email: req.Email}).First(&user)
 
-	// Create directory in users.env bucket for this user
-	// usrsBckName := s.s3c.UsersBucketName()
-	// err = s.s3c.NewBucketFolder(usrsBckName, fmt.Sprint(user.ID))
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	verifyLink := os.Getenv("APP_URL") + "/verify-signup/" + t
-	// Send email to req email
-	emailMsg := &postmark.Email{
-		From:    "info@base.al",
-		To:      req.Email,
-		Subject: "Base -  Verify your registration",
-		HTMLBody: fmt.Sprintf(`Hello from Base!<br/><br/>
-			You have successfully signed up as new user in CommuniHub platform!<br/>
-			Please continue by verifing your registration by linking the link below.<br/><br/>
-
-			<a href='%s'>Verify you email</a><br/><br/>
-
-			Thank you, <br/>
-			CommuniHub Team
-		`, verifyLink),
-	}
-
-	_, _, err = s.postmarkClient.Email.Send(emailMsg)
-	if err != nil {
-		return nil, err
-	}
-
-	return &SignupUserResponse{
-		ID:     user.ID,
-		Status: "pending",
+	return &StatusResponse{
+		Status: true,
 	}, nil
 }
 
-// @Summary      	SignupVerify
-// @Description	Validates token in param, if token parses valid then user will be verified and be updated in DB.
+// @Summary      	EmailUpdate
+// @Description		Validates user id new email then will check if email is the same of exists then if not updates the email of the user.
 // @Tags			Users
-// @Accept			json
 // @Produce			json
-// @Param			token				path		string			true	"Token"
-// @Success			200					{object}	StatusResponse
-// @Router			/signup/verify/{token}	[GET]
-func (s userAPI) SignupVerify(req *SignupUserVerifyRequest) (res *StatusResponse, err error) {
-	req.Token = strings.TrimSpace(req.Token)
-	if req.Token == "" {
-		return nil, fmt.Errorf("Token is empty")
+// @Param			Authorization						header		string			true	"Authorization Key(e.g Bearer key)"
+// @Param			EmailUpdateRequest					body		EmailUpdateRequest		true	"EmailUpdateRequest"
+// @Success			200									{object}	StatusResponse
+// @Router			/users/update-email					[PUT]
+func (s userAPI) EmailUpdate(req *EmailUpdateRequest) (res *StatusResponse, err error) {
+	if req.UserID == 0 {
+		return nil, fmt.Errorf("user id is empty")
+	}
+	req.NewEmail = strings.TrimSpace(req.NewEmail)
+	if req.NewEmail == "" {
+		return nil, fmt.Errorf("new email is empty")
+	}
+	if !helper.ValidEmail(req.NewEmail) {
+		return nil, fmt.Errorf("new email not valid")
 	}
 
-	// Parse and validate token expiration
-	claims := jwt.MapClaims{}
-	_, err = jwt.ParseWithClaims(req.Token, claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(s.secretKey), nil
-	})
-	if err != nil {
-		fmt.Println("ParseWithClaims", err)
-		return nil, err
-	}
-	email := fmt.Sprintf("%v", claims["email"])
-
-	// Find user by email in DB
+	// find user by id
 	var user User
-	s.db.Where("email = ?", email).First(&user)
-	if user.ID == 0 {
-		return nil, helper.ErrNotFound
+	result := s.db.Where("id = ?", req.UserID).First(&user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	if req.NewEmail == user.Email {
+		return nil, fmt.Errorf("the email is already the same")
 	}
 
-	user.VerifiedEmail = true
-	user.Active = true
-	result := s.db.Save(&user)
+	var userEmail User
+	_ = s.db.Where("email = ?", req.NewEmail).First(&userEmail)
+	if userEmail.Email == req.NewEmail {
+		return nil, fmt.Errorf("this email is already in use")
+	}
+
+	// update the email
+	user.Email = req.NewEmail
+	result = s.db.Save(&user)
 	if result.Error != nil {
 		return nil, result.Error
 	}

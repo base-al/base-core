@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"encoding/json"
 	"math/rand"
 	"time"
 )
@@ -48,4 +49,9 @@ func RoleTypeStr(roleId int) string {
 		return "Guest"
 	}
 	return ""
+}
+
+func PrettyLog(i interface{}) string {
+	s, _ := json.MarshalIndent(i, "", "\t")
+	return string(s)
 }
