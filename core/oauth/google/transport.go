@@ -1,9 +1,8 @@
 package oauth
 
 import (
-	"base/helper"
-	"base/middleware"
-
+	"github.com/base-al/base-core/helpers"
+	"github.com/base-al/base-core/middleware"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 )
@@ -35,7 +34,7 @@ func NewOAuthAccountHTTPTransport(oaapi OAuthAccountAPI, logger log.AllLogger, u
 func (s *oAuthAccountHttpTransport) GoogleSignUp(c *fiber.Ctx) error {
 	resp, err := s.oAuthAccountApi.GoogleSignUp()
 	if err != nil {
-		return helper.HTTPError(c, err, "OAuthAccountHTTPTransport.oAuthAccountApi.GoogleSignUp")
+		return helpers.HTTPError(c, err, "OAuthAccountHTTPTransport.oAuthAccountApi.GoogleSignUp")
 	}
 	return c.JSON(resp)
 }
@@ -58,7 +57,7 @@ func (s *oAuthAccountHttpTransport) GoogleSignUpCallback(c *fiber.Ctx) error {
 func (s *oAuthAccountHttpTransport) GoogleSignIn(c *fiber.Ctx) error {
 	resp, err := s.oAuthAccountApi.GoogleSignIn()
 	if err != nil {
-		return helper.HTTPError(c, err, "OAuthAccountHTTPTransport.oAuthAccountApi.GoogleSignIn")
+		return helpers.HTTPError(c, err, "OAuthAccountHTTPTransport.oAuthAccountApi.GoogleSignIn")
 	}
 	return c.JSON(resp)
 }
@@ -82,13 +81,13 @@ func (s *oAuthAccountHttpTransport) UserOAuthAccounts(c *fiber.Ctx) error {
 	req := &FindUserOAuthAccount{}
 	ctxUserId, err := middleware.CtxUserID(c)
 	if err != nil {
-		return helper.HTTPError(c, err, "OAuthAccountHTTPTransport.GoogleSignInCallback.middleware.CtxUserID")
+		return helpers.HTTPError(c, err, "OAuthAccountHTTPTransport.GoogleSignInCallback.middleware.CtxUserID")
 	}
 	req.UserID = ctxUserId
 
 	resp, err := s.oAuthAccountApi.UserOAuthAccounts(req)
 	if err != nil {
-		helper.HTTPError(c, err, "OAuthAccountHTTPTransport.oAuthAccountApi.GoogleSignIn")
+		helpers.HTTPError(c, err, "OAuthAccountHTTPTransport.oAuthAccountApi.GoogleSignIn")
 	}
 	return c.JSON(resp)
 }
@@ -97,13 +96,13 @@ func (s *oAuthAccountHttpTransport) GoogleAccountConnect(c *fiber.Ctx) error {
 	req := &GoogleAccountConnectRequest{}
 	userId, err := middleware.CtxUserID(c)
 	if err != nil {
-		return helper.HTTPError(c, err, "UserSettingsHTTPTransport.CtxUserID")
+		return helpers.HTTPError(c, err, "UserSettingsHTTPTransport.CtxUserID")
 	}
 	req.BaseUserID = userId
 
 	resp, err := s.oAuthAccountApi.GoogleAccountConnect(req)
 	if err != nil {
-		return helper.HTTPError(c, err, "OAuthAccountHTTPTransport.oAuthAccountApi.GoogleAccountConnect")
+		return helpers.HTTPError(c, err, "OAuthAccountHTTPTransport.oAuthAccountApi.GoogleAccountConnect")
 	}
 	return c.JSON(resp)
 }
@@ -116,7 +115,7 @@ func (s *oAuthAccountHttpTransport) GoogleAccountConnectCallback(c *fiber.Ctx) e
 	req.State = state
 	resp, err := s.oAuthAccountApi.GoogleAccountConnectCallback(req)
 	if err != nil {
-		return helper.HTTPError(c, err, "OAuthAccountHTTPTransport.oAuthAccountApi.GoogleAccountConnectCallback")
+		return helpers.HTTPError(c, err, "OAuthAccountHTTPTransport.oAuthAccountApi.GoogleAccountConnectCallback")
 	}
 	if resp.Status {
 		return c.SendFile("./app/oauthaccounts/static/callback.html")

@@ -4,13 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	// activitysvc "base/app/activities"
-	// companysvc "base/app/companies"
-
-	"base/s3"
-
-	"base/helper"
-
+	helpers "github.com/base-al/base-core/helpers"
+	"github.com/base-al/base-core/s3"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/mattevans/postmark-go"
 	"golang.org/x/crypto/bcrypt"
@@ -105,7 +100,7 @@ func (s userAPI) PasswordUpdate(req *PasswordUpdateRequest) (res *StatusResponse
 		}
 		// Compare passwords
 		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.CurrentPassword)); err != nil {
-			return nil, helper.ErrNotFound
+			return nil, fmt.Errorf("current password is incorrect")
 		}
 	}
 
@@ -143,7 +138,7 @@ func (s userAPI) EmailUpdate(req *EmailUpdateRequest) (res *StatusResponse, err 
 	if req.NewEmail == "" {
 		return nil, fmt.Errorf("new email is empty")
 	}
-	if !helper.ValidEmail(req.NewEmail) {
+	if !helpers.ValidEmail(req.NewEmail) {
 		return nil, fmt.Errorf("new email not valid")
 	}
 

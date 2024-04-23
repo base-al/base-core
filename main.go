@@ -1,13 +1,18 @@
 package main
 
 import (
-	dbhelper "base/db"
 	"fmt"
 	"net/http"
 	"os"
 
-	"base/middleware"
-	"base/s3"
+	authService "github.com/base-al/base-core/core/auth"
+	oauthGoogleService "github.com/base-al/base-core/core/oauth/google"
+	userService "github.com/base-al/base-core/core/users"
+	dbhelper "github.com/base-al/base-core/db"
+	middleware "github.com/base-al/base-core/middleware"
+	"github.com/base-al/base-core/s3"
+
+	swdocs "github.com/base-al/base-core/swagger"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
@@ -20,13 +25,7 @@ import (
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
-
-	swdocs "base/swagger"
-
 	// Core modules
-	authService "base/core/auth"
-	oauthGoogleService "base/core/oauth/google"
-	userService "base/core/users"
 	// App modules
 )
 
@@ -83,8 +82,8 @@ func main() {
 	if os.Getenv("UI_APP_URL") != "" {
 		uiAppUrl = os.Getenv("UI_APP_URL")
 	}
-	if os.Getenv("CAMPER_ENV") != "" {
-		env = os.Getenv("CAMPER_ENV")
+	if os.Getenv("BASE_ENV") != "" {
+		env = os.Getenv("BASE_ENV")
 	}
 	if os.Getenv("S3_OWNER_ACCOUNT_ID") != "" {
 		s3OwnerAccId = os.Getenv("S3_OWNER_ACCOUNT_ID")
@@ -114,10 +113,10 @@ func main() {
 	}
 	if env == "stage" {
 		apiPort = 4000
-		swdocs.SwaggerInfo.Host = "base-api.base.al"
+		swdocs.SwaggerInfo.Host = baseHostUrl
 	}
 	if env == "test" {
-		swdocs.SwaggerInfo.Host = "base-api.base.al"
+		swdocs.SwaggerInfo.Host = baseHostUrl
 	}
 
 	// Boostrap new fiber app
@@ -180,25 +179,25 @@ func main() {
 	}), swagger.HandlerDefault)
 
 	// Initialize API services
-	authApiSvc := authService.NewAuthHTTPTransport(
+	authApiService := authService.NewAuthHTTPTransport(
 		authService.NewAuthAPI(db, jwtSecret, postmarkclient, s3c, uiAppUrl, defaultLogger, googleOauth2Cfg, baseHostUrl),
 		defaultLogger,
 	)
 
-	userAPISvc := userService.NewUserHTTPTransport(
+	userAPIService := userService.NewUserHTTPTransport(
 		userService.NewUserAPI(db, s3c, jwtSecret, postmarkclient, uiAppUrl, defaultLogger, sendFromEmail),
 		defaultLogger)
 
-	oAuthAccountAPISvc := oauthGoogleService.NewOAuthAccountHTTPTransport(
+	oAuthAccountAPIService := oauthGoogleService.NewOAuthAccountHTTPTransport(
 		oauthGoogleService.NewOAuthAccountAPI(db, defaultLogger, googleOauth2Cfg, s3c, jwtSecret, baseHostUrl),
 		defaultLogger, uiAppUrl,
 	)
 
 	userRoute := apisRoute.Group("/users/:userId", authMiddleware)
 	// Register API routes
-	authService.RegisterRoutes(apisRoute, authApiSvc)
-	userService.RegisterRoutes(userRoute, userAPISvc, authMiddleware)
-	oauthGoogleService.RegisterRoutes(apisRoute, oAuthAccountAPISvc, authMiddleware)
+	authService.RegisterRoutes(apisRoute, authApiService)
+	userService.RegisterRoutes(userRoute, userAPIService, authMiddleware)
+	oauthGoogleService.RegisterRoutes(apisRoute, oAuthAccountAPIService, authMiddleware)
 
 	// Handle no route match
 	app.Use(NotFound)

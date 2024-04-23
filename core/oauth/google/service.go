@@ -1,14 +1,14 @@
 package oauth
 
 import (
-	"base/s3"
 	"context"
 	"fmt"
 	"strconv"
 	"time"
 
-	userService "base/core/users"
+	userService "github.com/base-al/base-core/core/users"
 
+	"github.com/base-al/base-core/s3"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/lib/pq"

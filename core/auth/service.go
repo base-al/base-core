@@ -1,18 +1,15 @@
 package auth
 
 import (
-	"base/helper"
-	"base/s3"
 	"context"
 	"fmt"
 	"strings"
-
 	"time"
 
-	// companysvc "base/app/companies"
-
-	oauth "base/core/oauth/google"
-	userService "base/core/users"
+	oauth "github.com/base-al/base-core/core/oauth/google"
+	userService "github.com/base-al/base-core/core/users"
+	helper "github.com/base-al/base-core/helpers"
+	s3 "github.com/base-al/base-core/s3"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2/log"

@@ -1,4 +1,4 @@
-module base
+module github.com/base-al/base-core
 
 go 1.21
 
@@ -7,7 +7,6 @@ toolchain go1.21.1
 require (
 	github.com/aws/aws-sdk-go v1.44.332
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/disintegration/imaging v1.6.2
 	github.com/gofiber/fiber/v2 v2.49.0
 	github.com/gofiber/jwt/v3 v3.3.10
 	github.com/gofiber/swagger v0.1.12
@@ -21,7 +20,12 @@ require (
 	golang.org/x/oauth2 v0.14.0
 	google.golang.org/api v0.151.0
 	gorm.io/driver/postgres v1.5.2
-	gorm.io/gorm v1.25.5
+	gorm.io/gorm v1.25.7
+)
+
+require (
+	github.com/go-sql-driver/mysql v1.7.0 // indirect
+	github.com/mattn/go-sqlite3 v1.14.17 // indirect
 )
 
 require (
@@ -58,7 +62,6 @@ require (
 	github.com/valyala/fasthttp v1.48.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
-	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/net v0.18.0 // indirect
 	golang.org/x/sys v0.14.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
@@ -68,4 +71,6 @@ require (
 	google.golang.org/grpc v1.59.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	gorm.io/driver/mysql v1.5.6
+	gorm.io/driver/sqlite v1.5.5
 )

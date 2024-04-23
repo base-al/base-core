@@ -1,8 +1,7 @@
 package auth
 
 import (
-	"base/helper"
-
+	helper "github.com/base-al/base-core/helpers"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 )
