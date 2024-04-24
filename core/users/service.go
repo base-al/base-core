@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/base-al/base-core/core/s3"
 	helpers "github.com/base-al/base-core/helpers"
-	"github.com/base-al/base-core/s3"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/mattevans/postmark-go"
 	"golang.org/x/crypto/bcrypt"

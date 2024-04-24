@@ -3,7 +3,6 @@ package db
 import (
 	"os"
 
-	// Sqlite driver based on CGO
 	drivers "github.com/base-al/base-core/db/drivers"
 	"gorm.io/gorm"
 )

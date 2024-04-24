@@ -1,16 +1,16 @@
-package oauth
+package google
 
 import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func RegisterRoutes(router fiber.Router, oAuthAccountHttpApi OAuthAccountHTTPTransport, authMiddleware func(c *fiber.Ctx) error) {
+func RegisterRoutes(router fiber.Router, oAuthGoogleAccountHttpApi OAuthGoogleAccountHTTPTransport, authMiddleware func(c *fiber.Ctx) error) {
 	oAuthAccountRoutes := router.Group("oauth")
-	oAuthAccountRoutes.Get("google/signup", oAuthAccountHttpApi.GoogleSignUp)
-	oAuthAccountRoutes.Get("google/signup/callback", oAuthAccountHttpApi.GoogleSignUpCallback)
-	oAuthAccountRoutes.Get("google", oAuthAccountHttpApi.GoogleSignIn)
-	oAuthAccountRoutes.Get("google/callback", oAuthAccountHttpApi.GoogleSignInCallback)
-	oAuthAccountRoutes.Get("accounts", authMiddleware, oAuthAccountHttpApi.UserOAuthAccounts)
-	oAuthAccountRoutes.Get("google/connect", authMiddleware, oAuthAccountHttpApi.GoogleAccountConnect)
-	oAuthAccountRoutes.Get("google/connect/callback", oAuthAccountHttpApi.GoogleAccountConnectCallback)
+	oAuthAccountRoutes.Get("google/signup", oAuthGoogleAccountHttpApi.GoogleSignUp)
+	oAuthAccountRoutes.Get("google/signup/callback", oAuthGoogleAccountHttpApi.GoogleSignUpCallback)
+	oAuthAccountRoutes.Get("google", oAuthGoogleAccountHttpApi.GoogleSignIn)
+	oAuthAccountRoutes.Get("google/callback", oAuthGoogleAccountHttpApi.GoogleSignInCallback)
+	oAuthAccountRoutes.Get("accounts", authMiddleware, oAuthGoogleAccountHttpApi.UserOAuthAccounts)
+	oAuthAccountRoutes.Get("google/connect", authMiddleware, oAuthGoogleAccountHttpApi.GoogleAccountConnect)
+	oAuthAccountRoutes.Get("google/connect/callback", oAuthGoogleAccountHttpApi.GoogleAccountConnectCallback)
 }

@@ -1,4 +1,4 @@
-package oauth
+package google
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 
 	userService "github.com/base-al/base-core/core/users"
 
-	"github.com/base-al/base-core/s3"
+	"github.com/base-al/base-core/core/s3"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/lib/pq"
@@ -24,7 +24,7 @@ const (
 	GoogleProviderName      = string("google")
 )
 
-type oAuthAccountApi struct {
+type oAuthGoogleAccountApi struct {
 	db           *gorm.DB
 	logger       log.AllLogger
 	oauth2Config *oauth2.Config
@@ -33,7 +33,7 @@ type oAuthAccountApi struct {
 	baseHostUrl  string
 }
 
-type OAuthAccountAPI interface {
+type OAuthGoogleAccountAPI interface {
 	GoogleSignUp() (res *OAuthResponse, err error)
 	GoogleSignUpCallback(req *OAuthCallbackRequest) (res *CallbackResponse, err error)
 	GoogleSignIn() (res *OAuthResponse, err error)
@@ -43,8 +43,8 @@ type OAuthAccountAPI interface {
 	GoogleAccountConnectCallback(req *GoogleAccountConnectCallbackRequest) (res *StatusResponse, err error)
 }
 
-func NewOAuthAccountAPI(db *gorm.DB, logger log.AllLogger, oauth2Config *oauth2.Config, s3c *s3.S3Client, secretKey string, baseHostUrl string) OAuthAccountAPI {
-	return &oAuthAccountApi{
+func NewOAuthGoogleAccountAPI(db *gorm.DB, logger log.AllLogger, oauth2Config *oauth2.Config, s3c *s3.S3Client, secretKey string, baseHostUrl string) OAuthGoogleAccountAPI {
+	return &oAuthGoogleAccountApi{
 		db:           db,
 		logger:       logger,
 		oauth2Config: oauth2Config,
@@ -60,7 +60,7 @@ func NewOAuthAccountAPI(db *gorm.DB, logger log.AllLogger, oauth2Config *oauth2.
 // @Produce			json
 // @Success			200								{object}		OAuthResponse
 // @Router			/oauth/google/signup			[GET]
-func (s *oAuthAccountApi) GoogleSignUp() (res *OAuthResponse, err error) {
+func (s *oAuthGoogleAccountApi) GoogleSignUp() (res *OAuthResponse, err error) {
 	url := s.oauth2Config.AuthCodeURL("", oauth2.AccessTypeOffline, oauth2.SetAuthURLParam("redirect_uri", s.baseHostUrl+"/api/oauth/google/signup/callback"), oauth2.SetAuthURLParam("access_type", "offline"), oauth2.SetAuthURLParam("approval_prompt", "force"))
 
 	return &OAuthResponse{
@@ -75,7 +75,7 @@ func (s *oAuthAccountApi) GoogleSignUp() (res *OAuthResponse, err error) {
 // @Param			code							query		string			true	"Code"
 // @Success			200								{object}	CallbackResponse
 // @Router			/oauth/google/signup/callback	[GET]
-func (s oAuthAccountApi) GoogleSignUpCallback(req *OAuthCallbackRequest) (res *CallbackResponse, err error) {
+func (s oAuthGoogleAccountApi) GoogleSignUpCallback(req *OAuthCallbackRequest) (res *CallbackResponse, err error) {
 	if req.Code == "" {
 		return nil, fmt.Errorf("code is empty")
 	}
@@ -175,7 +175,7 @@ func (s oAuthAccountApi) GoogleSignUpCallback(req *OAuthCallbackRequest) (res *C
 // @Produce			json
 // @Success			200								{object}		OAuthResponse
 // @Router			/oauth/google					[GET]
-func (s *oAuthAccountApi) GoogleSignIn() (res *OAuthResponse, err error) {
+func (s *oAuthGoogleAccountApi) GoogleSignIn() (res *OAuthResponse, err error) {
 	url := s.oauth2Config.AuthCodeURL("", oauth2.AccessTypeOffline,
 		oauth2.SetAuthURLParam("redirect_uri", s.baseHostUrl+"/api/oauth/google/callback"), oauth2.SetAuthURLParam("access_type", "offline"), oauth2.SetAuthURLParam("approval_prompt", "force"))
 
@@ -191,7 +191,7 @@ func (s *oAuthAccountApi) GoogleSignIn() (res *OAuthResponse, err error) {
 // @Param			code							query		string			true	"Code"
 // @Success			200								{object}	CallbackResponse
 // @Router			/oauth/google/callback			[GET]
-func (s *oAuthAccountApi) GoogleSignInCallback(req *OAuthCallbackRequest) (res *CallbackResponse, err error) {
+func (s *oAuthGoogleAccountApi) GoogleSignInCallback(req *OAuthCallbackRequest) (res *CallbackResponse, err error) {
 	if req.Code == "" {
 		return nil, fmt.Errorf("code is empty")
 	}
@@ -248,7 +248,7 @@ func (s *oAuthAccountApi) GoogleSignInCallback(req *OAuthCallbackRequest) (res *
 // @Param			Authorization					header		string			true	"Authorization Key(e.g Bearer key)"
 // @Success			200								{array}		UserAccountResponse
 // @Router			/oauth/accounts					[GET]
-func (s *oAuthAccountApi) UserOAuthAccounts(req *FindUserOAuthAccount) (res *UserAccountResponse, err error) {
+func (s *oAuthGoogleAccountApi) UserOAuthAccounts(req *FindUserOAuthAccount) (res *UserAccountResponse, err error) {
 	if req.UserID == 0 {
 		return nil, fmt.Errorf("user id is empty")
 	}
@@ -276,7 +276,7 @@ func (s *oAuthAccountApi) UserOAuthAccounts(req *FindUserOAuthAccount) (res *Use
 	return r, nil
 }
 
-func (s *oAuthAccountApi) GoogleAccountConnect(req *GoogleAccountConnectRequest) (res *OAuthResponse, err error) {
+func (s *oAuthGoogleAccountApi) GoogleAccountConnect(req *GoogleAccountConnectRequest) (res *OAuthResponse, err error) {
 	state := req.BaseUserID
 	redirectUrl := fmt.Sprintf("%s/api/oauth/google/connect/callback", s.baseHostUrl)
 	url := s.oauth2Config.AuthCodeURL(fmt.Sprint(state), oauth2.AccessTypeOffline, oauth2.SetAuthURLParam("redirect_uri", redirectUrl), oauth2.SetAuthURLParam("access_type", "offline"), oauth2.SetAuthURLParam("approval_prompt", "force"))
@@ -286,7 +286,7 @@ func (s *oAuthAccountApi) GoogleAccountConnect(req *GoogleAccountConnectRequest)
 	}, nil
 }
 
-func (s *oAuthAccountApi) GoogleAccountConnectCallback(req *GoogleAccountConnectCallbackRequest) (res *StatusResponse, err error) {
+func (s *oAuthGoogleAccountApi) GoogleAccountConnectCallback(req *GoogleAccountConnectCallbackRequest) (res *StatusResponse, err error) {
 	if req.Code == "" {
 		return nil, fmt.Errorf("code is empty")
 	}

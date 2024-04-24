@@ -7,10 +7,10 @@ import (
 
 	authService "github.com/base-al/base-core/core/auth"
 	oauthGoogleService "github.com/base-al/base-core/core/oauth/google"
+	"github.com/base-al/base-core/core/s3"
 	userService "github.com/base-al/base-core/core/users"
 	dbhelper "github.com/base-al/base-core/db"
 	middleware "github.com/base-al/base-core/middleware"
-	"github.com/base-al/base-core/s3"
 
 	swdocs "github.com/base-al/base-core/swagger"
 
@@ -177,8 +177,6 @@ func main() {
 			"dev": "basecode",
 		},
 	}), swagger.HandlerDefault)
-
-	// Initialize API services
 	authApiService := authService.NewAuthHTTPTransport(
 		authService.NewAuthAPI(db, jwtSecret, postmarkclient, s3c, uiAppUrl, defaultLogger, googleOauth2Cfg, baseHostUrl),
 		defaultLogger,
@@ -188,11 +186,10 @@ func main() {
 		userService.NewUserAPI(db, s3c, jwtSecret, postmarkclient, uiAppUrl, defaultLogger, sendFromEmail),
 		defaultLogger)
 
-	oAuthAccountAPIService := oauthGoogleService.NewOAuthAccountHTTPTransport(
-		oauthGoogleService.NewOAuthAccountAPI(db, defaultLogger, googleOauth2Cfg, s3c, jwtSecret, baseHostUrl),
+	oAuthAccountAPIService := oauthGoogleService.NewOAuthGoogleAccountHTTPTransport(
+		oauthGoogleService.NewOAuthGoogleAccountAPI(db, defaultLogger, googleOauth2Cfg, s3c, jwtSecret, baseHostUrl),
 		defaultLogger, uiAppUrl,
 	)
-
 	userRoute := apisRoute.Group("/users/:userId", authMiddleware)
 	// Register API routes
 	authService.RegisterRoutes(apisRoute, authApiService)

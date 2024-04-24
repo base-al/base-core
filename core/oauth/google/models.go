@@ -1,4 +1,4 @@
-package oauth
+package google
 
 import "time"
 

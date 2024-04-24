@@ -10,10 +10,9 @@ Base is an API writted in Go language based on SOA architecture. Base core modul
 
 - Back-end Language: **Go**
 - Framework: **Fiber**
-- Database: **PostgreSQL**
+- Database: **PostgreSQL**, **MySQL**, **SQLite**
 - ORM: **GORM**
 - Authentication: **JWT**
-- System Access Control: **RBAC**
 - Web Service API Architecture: **RESTful**
 - API Communication Data Type: **JSON**
 

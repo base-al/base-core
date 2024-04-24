@@ -190,6 +190,205 @@ const docTemplate = `{
                 }
             }
         },
+        "/chapters": {
+            "get": {
+                "description": "Lists all chapters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chapters"
+                ],
+                "summary": "Index",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization Key(e.g Bearer key)",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/chapter.ListChapterRequest"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Validates user id and title. If they are up to standard a new chapter will be created. The created chapters ID will be returned.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chapters"
+                ],
+                "summary": "Create",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization Key(e.g Bearer key)",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "CreateChapterRequest",
+                        "name": "CreateChapterRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/chapter.CreateChapterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/chapter.CreateChapterResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/chapters/{id}": {
+            "get": {
+                "description": "Fetches a chapter by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chapters"
+                ],
+                "summary": "Read",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization Key(e.g Bearer key)",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Chapter ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/chapter.ReadChapterRequest"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Updates a chapter",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chapters"
+                ],
+                "summary": "Update",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization Key(e.g Bearer key)",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Chapter ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "UpdateChapterRequest",
+                        "name": "UpdateChapterRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/chapter.UpdateChapterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/chapter.UpdateChapterResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a chapter by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chapters"
+                ],
+                "summary": "Delete",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization Key(e.g Bearer key)",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Chapter ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/chapter.DeleteChapterResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/oauth/accounts": {
             "get": {
                 "description": "Validates user id, will query DB in oauth accounts and returns records.",
@@ -215,7 +414,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/oauthaccounts.UserAccountResponse"
+                                "$ref": "#/definitions/google.UserAccountResponse"
                             }
                         }
                     }
@@ -236,7 +435,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/oauthaccounts.OAuthResponse"
+                            "$ref": "#/definitions/google.OAuthResponse"
                         }
                     }
                 }
@@ -265,7 +464,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/oauthaccounts.CallbackResponse"
+                            "$ref": "#/definitions/google.CallbackResponse"
                         }
                     }
                 }
@@ -285,7 +484,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/oauthaccounts.OAuthResponse"
+                            "$ref": "#/definitions/google.OAuthResponse"
                         }
                     }
                 }
@@ -314,15 +513,15 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/oauthaccounts.CallbackResponse"
+                            "$ref": "#/definitions/google.CallbackResponse"
                         }
                     }
                 }
             }
         },
-        "/stories": {
+        "/pages": {
             "get": {
-                "description": "Validates user id and returns all stories that have status of \"published\"",
+                "description": "Lists all pages",
                 "consumes": [
                     "application/json"
                 ],
@@ -330,9 +529,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Stories"
+                    "Pages"
                 ],
-                "summary": "FindAllStories",
+                "summary": "Index",
                 "parameters": [
                     {
                         "type": "string",
@@ -348,14 +547,14 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/stories.FindStoriesRes"
+                                "$ref": "#/definitions/pages.ListPageRequest"
                             }
                         }
                     }
                 }
             },
             "post": {
-                "description": "Validates user id and title. If they are up to standard a new story will be created. The created stories ID will be returned.",
+                "description": "Validates user id and title. If they are up to standard a new page will be created. The created pages ID will be returned.",
                 "consumes": [
                     "application/json"
                 ],
@@ -363,9 +562,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Stories"
+                    "Pages"
                 ],
-                "summary": "Add",
+                "summary": "Create",
                 "parameters": [
                     {
                         "type": "string",
@@ -375,12 +574,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "StoryRequest",
-                        "name": "StoryRequest",
+                        "description": "CreatePageRequest",
+                        "name": "CreatePageRequest",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/stories.StoryRequest"
+                            "$ref": "#/definitions/pages.CreatePageRequest"
                         }
                     }
                 ],
@@ -388,15 +587,15 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/stories.StoryResponse"
+                            "$ref": "#/definitions/pages.CreatePageResponse"
                         }
                     }
                 }
             }
         },
-        "/stories/by-user/{id}": {
+        "/pages/{id}": {
             "get": {
-                "description": "Validates user id and returns all stories made by that userId",
+                "description": "Fetches a page by ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -404,9 +603,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Stories"
+                    "Pages"
                 ],
-                "summary": "FindMyStories",
+                "summary": "Read",
                 "parameters": [
                     {
                         "type": "string",
@@ -417,7 +616,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "UserId",
+                        "description": "Page ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -429,222 +628,14 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/stories.FindStoriesRes"
+                                "$ref": "#/definitions/pages.ReadPageRequest"
                             }
-                        }
-                    }
-                }
-            }
-        },
-        "/stories/info/{id}": {
-            "get": {
-                "description": "Validates story id and returns the information of that story",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Stories"
-                ],
-                "summary": "Find Story Info",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Authorization Key(e.g Bearer key)",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Story ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/stories.StoryInfo"
-                        }
-                    }
-                }
-            }
-        },
-        "/stories/{id}": {
-            "put": {
-                "description": "Validates Story Id, validates if userId is the same as the one who created the story and then updates the story in database",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Stories"
-                ],
-                "summary": "Edit Story",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Authorization Key(e.g Bearer key)",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Story Id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "StoryRequest",
-                        "name": "StoryRequest",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/stories.StoryRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/stories.StoryResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Validates Story Id, validates if userId is the same as the one who created the story and then deletes the story from database",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Stories"
-                ],
-                "summary": "Delete Story",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Authorization Key(e.g Bearer key)",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Story Id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/stories.IDResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/stories/{storyId}/chapters": {
-            "post": {
-                "description": "Validates user id and title. If they are up to standard a new story will be created. The created stories ID will be returned.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Chapters"
-                ],
-                "summary": "Add",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Authorization Key(e.g Bearer key)",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "StoryID",
-                        "name": "storyId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "AddChapterRequest",
-                        "name": "AddChapterRequest",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/chapters.AddChapterRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/chapters.ChapterResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/user-profiles/{id}": {
-            "get": {
-                "description": "Validates org id, and user id, find user and its profile in DB then returns them in JSON.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "UserProfiles"
-                ],
-                "summary": "Get",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Authorization Key(e.g Bearer key)",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Profile ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/userprofiles.UserProfileResponse"
                         }
                     }
                 }
             },
             "put": {
-                "description": "Validates linkedinURL, then updates user with values provided in request and returns user ID.",
+                "description": "Updates a page",
                 "consumes": [
                     "application/json"
                 ],
@@ -652,160 +643,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "UserProfiles"
-                ],
-                "summary": "UpdateProfile",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Authorization Key(e.g Bearer key)",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Profile ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "UserProfileRequest",
-                        "name": "UserProfileRequest",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/userprofiles.UserProfileRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/userprofiles.IDResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/user-profiles/{id}/upload-avatar": {
-            "put": {
-                "description": "Validates the uploaded avatar img file, processes the uploading to the S3 bucket updates the profile in DB returns profile ID.",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "UserProfiles"
-                ],
-                "summary": "UploadProfileAvatar",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Authorization Key(e.g Bearer key)",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Profile ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "Avatar Image File",
-                        "name": "avatar-img",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/userprofiles.UploadProfileAvatarResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/user-settings": {
-            "get": {
-                "description": "Validates org id, and user id, finds in DB the user settings based on user id, (type and valueBool in URL query) then returns all of user settings.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "UserSettings"
-                ],
-                "summary": "FindUserSettingsRequest",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Authorization Key(e.g Bearer key)",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "OrgID",
-                        "name": "orgId",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Type",
-                        "name": "type",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "UserID",
-                        "name": "userId",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "ValueBool",
-                        "name": "valueBool",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/usersettings.UserSettingResponse"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/user-settings/{id}": {
-            "put": {
-                "description": "Validates id, user id, name then updates user setting with values provided in request and returns user setting ID.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "UserSettings"
+                    "Pages"
                 ],
                 "summary": "Update",
                 "parameters": [
@@ -818,25 +656,18 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "OrgID",
-                        "name": "orgId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID",
+                        "description": "Page ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "UserSettingRequest",
-                        "name": "UserSettingRequest",
+                        "description": "UpdatePageRequest",
+                        "name": "UpdatePageRequest",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/usersettings.UserSettingRequest"
+                            "$ref": "#/definitions/pages.UpdatePageRequest"
                         }
                     }
                 ],
@@ -844,7 +675,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/usersettings.IDResponse"
+                            "$ref": "#/definitions/pages.UpdatePageResponse"
                         }
                     }
                 }
@@ -1040,41 +871,102 @@ const docTemplate = `{
                 }
             }
         },
-        "chapters.AddChapterRequest": {
+        "chapter.CreateChapterRequest": {
             "type": "object",
             "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "position": {
+                "author_id": {
                     "type": "integer"
+                },
+                "content": {
+                    "type": "string"
                 },
                 "title": {
                     "type": "string"
                 }
             }
         },
-        "chapters.ChapterResponse": {
+        "chapter.CreateChapterResponse": {
             "type": "object",
             "properties": {
-                "description": {
+                "id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "chapter.DeleteChapterResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "chapter.ListChapterRequest": {
+            "type": "object",
+            "properties": {
+                "author_id": {
+                    "type": "integer"
+                },
+                "chapter": {
+                    "type": "integer"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "chapter.ReadChapterRequest": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "chapter.UpdateChapterRequest": {
+            "type": "object",
+            "properties": {
+                "author_id": {
+                    "type": "integer"
+                },
+                "content": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
-                "position": {
-                    "type": "integer"
+                "published_at": {
+                    "type": "string"
                 },
-                "storyID": {
-                    "type": "integer"
+                "status": {
+                    "type": "string"
                 },
                 "title": {
                     "type": "string"
                 }
             }
         },
-        "oauthaccounts.CallbackResponse": {
+        "chapter.UpdateChapterResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "google.CallbackResponse": {
             "type": "object",
             "properties": {
                 "provider": {
@@ -1085,7 +977,7 @@ const docTemplate = `{
                 }
             }
         },
-        "oauthaccounts.OAuthResponse": {
+        "google.OAuthResponse": {
             "type": "object",
             "properties": {
                 "redirectUrl": {
@@ -1093,13 +985,13 @@ const docTemplate = `{
                 }
             }
         },
-        "oauthaccounts.UserAccountResponse": {
+        "google.UserAccountResponse": {
             "type": "object",
             "properties": {
                 "oAuthAccounts": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/oauthaccounts.UserOAuthAccount"
+                        "$ref": "#/definitions/google.UserOAuthAccount"
                     }
                 },
                 "passwordSet": {
@@ -1107,7 +999,7 @@ const docTemplate = `{
                 }
             }
         },
-        "oauthaccounts.UserOAuthAccount": {
+        "google.UserOAuthAccount": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -1127,34 +1019,70 @@ const docTemplate = `{
                 }
             }
         },
-        "stories.ChapterRes": {
+        "pages.CreatePageRequest": {
             "type": "object",
             "properties": {
-                "description": {
+                "author_id": {
+                    "type": "integer"
+                },
+                "content": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "position": {
-                    "type": "integer"
                 },
                 "title": {
                     "type": "string"
                 }
             }
         },
-        "stories.FindStoriesRes": {
+        "pages.CreatePageResponse": {
             "type": "object",
             "properties": {
-                "chapters": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/stories.ChapterRes"
-                    }
+                "id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "pages.ListPageRequest": {
+            "type": "object",
+            "properties": {
+                "author_id": {
+                    "type": "integer"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "pages.ReadPageRequest": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pages.UpdatePageRequest": {
+            "type": "object",
+            "properties": {
+                "author_id": {
+                    "type": "integer"
+                },
+                "content": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "integer"
+                },
+                "published_at": {
+                    "type": "string"
                 },
                 "status": {
                     "type": "string"
@@ -1164,152 +1092,13 @@ const docTemplate = `{
                 }
             }
         },
-        "stories.IDResponse": {
+        "pages.UpdatePageResponse": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "stories.StoryInfo": {
-            "type": "object",
-            "properties": {
-                "creator": {
-                    "$ref": "#/definitions/stories.UserInfo"
-                },
-                "details": {
-                    "$ref": "#/definitions/stories.FindStoriesRes"
-                }
-            }
-        },
-        "stories.StoryRequest": {
-            "type": "object",
-            "properties": {
-                "status": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "stories.StoryResponse": {
-            "type": "object",
-            "properties": {
-                "cover": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
                 },
                 "status": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "userId": {
-                    "type": "integer"
-                }
-            }
-        },
-        "stories.UserInfo": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "firstName": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "lastName": {
-                    "type": "string"
-                }
-            }
-        },
-        "userprofiles.IDResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "userprofiles.UploadProfileAvatarResponse": {
-            "type": "object",
-            "properties": {
-                "avatarImgUrl": {
-                    "type": "string"
-                }
-            }
-        },
-        "userprofiles.UserProfileRequest": {
-            "type": "object",
-            "properties": {
-                "bio": {
-                    "type": "string"
-                },
-                "headline": {
-                    "type": "string"
-                },
-                "location": {
-                    "type": "string"
-                },
-                "preventDm": {
-                    "type": "boolean"
-                },
-                "publicEmail": {
-                    "type": "boolean"
-                },
-                "website": {
-                    "type": "string"
-                }
-            }
-        },
-        "userprofiles.UserProfileResponse": {
-            "type": "object",
-            "properties": {
-                "avatarImgUrl": {
-                    "type": "string"
-                },
-                "bio": {
-                    "type": "string"
-                },
-                "department": {
-                    "type": "string"
-                },
-                "headline": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "location": {
-                    "type": "string"
-                },
-                "preventDm": {
-                    "type": "boolean"
-                },
-                "publicEmail": {
-                    "type": "boolean"
-                },
-                "skills": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "website": {
                     "type": "string"
                 }
             }
@@ -1344,72 +1133,6 @@ const docTemplate = `{
             "properties": {
                 "status": {
                     "type": "boolean"
-                }
-            }
-        },
-        "usersettings.IDResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "usersettings.UserSettingRequest": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                },
-                "valueBool": {
-                    "type": "boolean"
-                },
-                "valueInt": {
-                    "type": "integer"
-                },
-                "valueText": {
-                    "type": "string"
-                }
-            }
-        },
-        "usersettings.UserSettingResponse": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "userId": {
-                    "type": "integer"
-                },
-                "valueBool": {
-                    "type": "boolean"
-                },
-                "valueInt": {
-                    "type": "integer"
-                },
-                "valueText": {
-                    "type": "string"
                 }
             }
         }

@@ -71,50 +71,89 @@ definitions:
       username:
         type: string
     type: object
-  chapters.AddChapterRequest:
+  chapter.CreateChapterRequest:
     properties:
-      description:
-        type: string
-      position:
+      author_id:
         type: integer
+      content:
+        type: string
       title:
         type: string
     type: object
-  chapters.ChapterResponse:
+  chapter.CreateChapterResponse:
     properties:
-      description:
+      id:
+        type: integer
+      status:
+        type: string
+    type: object
+  chapter.DeleteChapterResponse:
+    properties:
+      id:
+        type: integer
+      status:
+        type: string
+    type: object
+  chapter.ListChapterRequest:
+    properties:
+      author_id:
+        type: integer
+      chapter:
+        type: integer
+      limit:
+        type: integer
+      status:
+        type: string
+    type: object
+  chapter.ReadChapterRequest:
+    properties:
+      id:
+        type: integer
+    type: object
+  chapter.UpdateChapterRequest:
+    properties:
+      author_id:
+        type: integer
+      content:
         type: string
       id:
         type: integer
-      position:
-        type: integer
-      storyID:
-        type: integer
+      published_at:
+        type: string
+      status:
+        type: string
       title:
         type: string
     type: object
-  oauthaccounts.CallbackResponse:
+  chapter.UpdateChapterResponse:
+    properties:
+      id:
+        type: integer
+      status:
+        type: string
+    type: object
+  google.CallbackResponse:
     properties:
       provider:
         type: string
       token:
         type: string
     type: object
-  oauthaccounts.OAuthResponse:
+  google.OAuthResponse:
     properties:
       redirectUrl:
         type: string
     type: object
-  oauthaccounts.UserAccountResponse:
+  google.UserAccountResponse:
     properties:
       oAuthAccounts:
         items:
-          $ref: '#/definitions/oauthaccounts.UserOAuthAccount'
+          $ref: '#/definitions/google.UserOAuthAccount'
         type: array
       passwordSet:
         type: boolean
     type: object
-  oauthaccounts.UserOAuthAccount:
+  google.UserOAuthAccount:
     properties:
       createdAt:
         type: string
@@ -127,125 +166,58 @@ definitions:
       userId:
         type: integer
     type: object
-  stories.ChapterRes:
+  pages.CreatePageRequest:
     properties:
-      description:
+      author_id:
+        type: integer
+      content:
         type: string
-      id:
-        type: integer
-      position:
-        type: integer
       title:
         type: string
     type: object
-  stories.FindStoriesRes:
+  pages.CreatePageResponse:
     properties:
-      chapters:
-        items:
-          $ref: '#/definitions/stories.ChapterRes'
-        type: array
       id:
         type: integer
+      status:
+        type: string
+    type: object
+  pages.ListPageRequest:
+    properties:
+      author_id:
+        type: integer
+      limit:
+        type: integer
+      page:
+        type: integer
+      status:
+        type: string
+    type: object
+  pages.ReadPageRequest:
+    properties:
+      id:
+        type: integer
+    type: object
+  pages.UpdatePageRequest:
+    properties:
+      author_id:
+        type: integer
+      content:
+        type: string
+      id:
+        type: integer
+      published_at:
+        type: string
       status:
         type: string
       title:
         type: string
     type: object
-  stories.IDResponse:
+  pages.UpdatePageResponse:
     properties:
-      id:
-        type: integer
-    type: object
-  stories.StoryInfo:
-    properties:
-      creator:
-        $ref: '#/definitions/stories.UserInfo'
-      details:
-        $ref: '#/definitions/stories.FindStoriesRes'
-    type: object
-  stories.StoryRequest:
-    properties:
-      status:
-        type: string
-      title:
-        type: string
-    type: object
-  stories.StoryResponse:
-    properties:
-      cover:
-        type: string
-      description:
-        type: string
       id:
         type: integer
       status:
-        type: string
-      title:
-        type: string
-      userId:
-        type: integer
-    type: object
-  stories.UserInfo:
-    properties:
-      email:
-        type: string
-      firstName:
-        type: string
-      id:
-        type: integer
-      lastName:
-        type: string
-    type: object
-  userprofiles.IDResponse:
-    properties:
-      id:
-        type: integer
-    type: object
-  userprofiles.UploadProfileAvatarResponse:
-    properties:
-      avatarImgUrl:
-        type: string
-    type: object
-  userprofiles.UserProfileRequest:
-    properties:
-      bio:
-        type: string
-      headline:
-        type: string
-      location:
-        type: string
-      preventDm:
-        type: boolean
-      publicEmail:
-        type: boolean
-      website:
-        type: string
-    type: object
-  userprofiles.UserProfileResponse:
-    properties:
-      avatarImgUrl:
-        type: string
-      bio:
-        type: string
-      department:
-        type: string
-      headline:
-        type: string
-      id:
-        type: integer
-      location:
-        type: string
-      preventDm:
-        type: boolean
-      publicEmail:
-        type: boolean
-      skills:
-        items:
-          type: string
-        type: array
-      updatedAt:
-        type: string
-      website:
         type: string
     type: object
   users.EmailUpdateRequest:
@@ -268,49 +240,6 @@ definitions:
     properties:
       status:
         type: boolean
-    type: object
-  usersettings.IDResponse:
-    properties:
-      id:
-        type: integer
-    type: object
-  usersettings.UserSettingRequest:
-    properties:
-      description:
-        type: string
-      name:
-        type: string
-      type:
-        type: string
-      valueBool:
-        type: boolean
-      valueInt:
-        type: integer
-      valueText:
-        type: string
-    type: object
-  usersettings.UserSettingResponse:
-    properties:
-      createdAt:
-        type: string
-      description:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      type:
-        type: string
-      updatedAt:
-        type: string
-      userId:
-        type: integer
-      valueBool:
-        type: boolean
-      valueInt:
-        type: integer
-      valueText:
-        type: string
     type: object
 info:
   contact: {}
@@ -437,6 +366,140 @@ paths:
       summary: SignupVerify
       tags:
       - Auth
+  /chapters:
+    get:
+      consumes:
+      - application/json
+      description: Lists all chapters
+      parameters:
+      - description: Authorization Key(e.g Bearer key)
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/chapter.ListChapterRequest'
+            type: array
+      summary: Index
+      tags:
+      - Chapters
+    post:
+      consumes:
+      - application/json
+      description: Validates user id and title. If they are up to standard a new chapter
+        will be created. The created chapters ID will be returned.
+      parameters:
+      - description: Authorization Key(e.g Bearer key)
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: CreateChapterRequest
+        in: body
+        name: CreateChapterRequest
+        required: true
+        schema:
+          $ref: '#/definitions/chapter.CreateChapterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/chapter.CreateChapterResponse'
+      summary: Create
+      tags:
+      - Chapters
+  /chapters/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a chapter by ID
+      parameters:
+      - description: Authorization Key(e.g Bearer key)
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Chapter ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/chapter.DeleteChapterResponse'
+      summary: Delete
+      tags:
+      - Chapters
+    get:
+      consumes:
+      - application/json
+      description: Fetches a chapter by ID
+      parameters:
+      - description: Authorization Key(e.g Bearer key)
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Chapter ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/chapter.ReadChapterRequest'
+            type: array
+      summary: Read
+      tags:
+      - Chapters
+    put:
+      consumes:
+      - application/json
+      description: Updates a chapter
+      parameters:
+      - description: Authorization Key(e.g Bearer key)
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Chapter ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: UpdateChapterRequest
+        in: body
+        name: UpdateChapterRequest
+        required: true
+        schema:
+          $ref: '#/definitions/chapter.UpdateChapterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/chapter.UpdateChapterResponse'
+      summary: Update
+      tags:
+      - Chapters
   /oauth/accounts:
     get:
       description: Validates user id, will query DB in oauth accounts and returns
@@ -454,7 +517,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/oauthaccounts.UserAccountResponse'
+              $ref: '#/definitions/google.UserAccountResponse'
             type: array
       summary: UserOAuthAccounts
       tags:
@@ -468,7 +531,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/oauthaccounts.OAuthResponse'
+            $ref: '#/definitions/google.OAuthResponse'
       summary: GoogleSignIn
       tags:
       - OAuthAccount
@@ -489,7 +552,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/oauthaccounts.CallbackResponse'
+            $ref: '#/definitions/google.CallbackResponse'
       summary: GoogleSignInCallback
       tags:
       - OAuthAccount
@@ -502,7 +565,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/oauthaccounts.OAuthResponse'
+            $ref: '#/definitions/google.OAuthResponse'
       summary: GoogleSignUp
       tags:
       - OAuthAccount
@@ -523,15 +586,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/oauthaccounts.CallbackResponse'
+            $ref: '#/definitions/google.CallbackResponse'
       summary: GoogleSignUpCallback
       tags:
       - OAuthAccount
-  /stories:
+  /pages:
     get:
       consumes:
       - application/json
-      description: Validates user id and returns all stories that have status of "published"
+      description: Lists all pages
       parameters:
       - description: Authorization Key(e.g Bearer key)
         in: header
@@ -545,142 +608,50 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/stories.FindStoriesRes'
+              $ref: '#/definitions/pages.ListPageRequest'
             type: array
-      summary: FindAllStories
+      summary: Index
       tags:
-      - Stories
+      - Pages
     post:
       consumes:
       - application/json
-      description: Validates user id and title. If they are up to standard a new story
-        will be created. The created stories ID will be returned.
+      description: Validates user id and title. If they are up to standard a new page
+        will be created. The created pages ID will be returned.
       parameters:
       - description: Authorization Key(e.g Bearer key)
         in: header
         name: Authorization
         required: true
         type: string
-      - description: StoryRequest
+      - description: CreatePageRequest
         in: body
-        name: StoryRequest
+        name: CreatePageRequest
         required: true
         schema:
-          $ref: '#/definitions/stories.StoryRequest'
+          $ref: '#/definitions/pages.CreatePageRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/stories.StoryResponse'
-      summary: Add
+            $ref: '#/definitions/pages.CreatePageResponse'
+      summary: Create
       tags:
-      - Stories
-  /stories/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Validates Story Id, validates if userId is the same as the one
-        who created the story and then deletes the story from database
-      parameters:
-      - description: Authorization Key(e.g Bearer key)
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Story Id
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/stories.IDResponse'
-      summary: Delete Story
-      tags:
-      - Stories
-    put:
-      consumes:
-      - application/json
-      description: Validates Story Id, validates if userId is the same as the one
-        who created the story and then updates the story in database
-      parameters:
-      - description: Authorization Key(e.g Bearer key)
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Story Id
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: StoryRequest
-        in: body
-        name: StoryRequest
-        required: true
-        schema:
-          $ref: '#/definitions/stories.StoryRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/stories.StoryResponse'
-      summary: Edit Story
-      tags:
-      - Stories
-  /stories/{storyId}/chapters:
-    post:
-      consumes:
-      - application/json
-      description: Validates user id and title. If they are up to standard a new story
-        will be created. The created stories ID will be returned.
-      parameters:
-      - description: Authorization Key(e.g Bearer key)
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: StoryID
-        in: path
-        name: storyId
-        required: true
-        type: integer
-      - description: AddChapterRequest
-        in: body
-        name: AddChapterRequest
-        required: true
-        schema:
-          $ref: '#/definitions/chapters.AddChapterRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/chapters.ChapterResponse'
-      summary: Add
-      tags:
-      - Chapters
-  /stories/by-user/{id}:
+      - Pages
+  /pages/{id}:
     get:
       consumes:
       - application/json
-      description: Validates user id and returns all stories made by that userId
+      description: Fetches a page by ID
       parameters:
       - description: Authorization Key(e.g Bearer key)
         in: header
         name: Authorization
         required: true
         type: string
-      - description: UserId
+      - description: Page ID
         in: path
         name: id
         required: true
@@ -692,204 +663,42 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/stories.FindStoriesRes'
+              $ref: '#/definitions/pages.ReadPageRequest'
             type: array
-      summary: FindMyStories
+      summary: Read
       tags:
-      - Stories
-  /stories/info/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Validates story id and returns the information of that story
-      parameters:
-      - description: Authorization Key(e.g Bearer key)
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Story ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/stories.StoryInfo'
-      summary: Find Story Info
-      tags:
-      - Stories
-  /user-profiles/{id}:
-    get:
-      description: Validates org id, and user id, find user and its profile in DB
-        then returns them in JSON.
-      parameters:
-      - description: Authorization Key(e.g Bearer key)
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Profile ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/userprofiles.UserProfileResponse'
-      summary: Get
-      tags:
-      - UserProfiles
+      - Pages
     put:
       consumes:
       - application/json
-      description: Validates linkedinURL, then updates user with values provided in
-        request and returns user ID.
+      description: Updates a page
       parameters:
       - description: Authorization Key(e.g Bearer key)
         in: header
         name: Authorization
         required: true
         type: string
-      - description: Profile ID
+      - description: Page ID
         in: path
         name: id
         required: true
         type: integer
-      - description: UserProfileRequest
+      - description: UpdatePageRequest
         in: body
-        name: UserProfileRequest
+        name: UpdatePageRequest
         required: true
         schema:
-          $ref: '#/definitions/userprofiles.UserProfileRequest'
+          $ref: '#/definitions/pages.UpdatePageRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/userprofiles.IDResponse'
-      summary: UpdateProfile
-      tags:
-      - UserProfiles
-  /user-profiles/{id}/upload-avatar:
-    put:
-      consumes:
-      - multipart/form-data
-      description: Validates the uploaded avatar img file, processes the uploading
-        to the S3 bucket updates the profile in DB returns profile ID.
-      parameters:
-      - description: Authorization Key(e.g Bearer key)
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Profile ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Avatar Image File
-        in: formData
-        name: avatar-img
-        required: true
-        type: file
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/userprofiles.UploadProfileAvatarResponse'
-      summary: UploadProfileAvatar
-      tags:
-      - UserProfiles
-  /user-settings:
-    get:
-      consumes:
-      - application/json
-      description: Validates org id, and user id, finds in DB the user settings based
-        on user id, (type and valueBool in URL query) then returns all of user settings.
-      parameters:
-      - description: Authorization Key(e.g Bearer key)
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: OrgID
-        in: query
-        name: orgId
-        type: integer
-      - description: Type
-        in: query
-        name: type
-        type: string
-      - description: UserID
-        in: query
-        name: userId
-        type: integer
-      - description: ValueBool
-        in: query
-        name: valueBool
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/usersettings.UserSettingResponse'
-            type: array
-      summary: FindUserSettingsRequest
-      tags:
-      - UserSettings
-  /user-settings/{id}:
-    put:
-      consumes:
-      - application/json
-      description: Validates id, user id, name then updates user setting with values
-        provided in request and returns user setting ID.
-      parameters:
-      - description: Authorization Key(e.g Bearer key)
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: OrgID
-        in: path
-        name: orgId
-        required: true
-        type: integer
-      - description: ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: UserSettingRequest
-        in: body
-        name: UserSettingRequest
-        required: true
-        schema:
-          $ref: '#/definitions/usersettings.UserSettingRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/usersettings.IDResponse'
+            $ref: '#/definitions/pages.UpdatePageResponse'
       summary: Update
       tags:
-      - UserSettings
+      - Pages
   /users/update-email:
     put:
       description: Validates user id new email then will check if email is the same
